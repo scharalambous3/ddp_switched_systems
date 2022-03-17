@@ -32,18 +32,18 @@ switch typeProb
         % State size
         n=4;
         % Initial and desired state
-        x0=[0,0,pi*0.8,0]';
-        xDes = [0,0,pi*0.9,0]';
+        x0=[0,0,0.1,0]';
+        xDes = [-1,0,pi,0]';
         
         
         % Cost weighting matrices
-        Q = 0*diag([5000,100,15000,100]);
+        Q = 1*diag([5000,100,15000,100]);
         R = 15*eye(1,1);
         Qf = diag([5000,100,15000,100]);
 end
 
 
-numIterations=300;
+numIterations=400;
 cost=[]
 runningCost=[]
 finalCost=[]
@@ -64,12 +64,12 @@ for i = 1: numIterations
     
     
     
-    
+    % IMPLEMENT LINE SEARCH STRATEGY
     
     %Get feed-forward and feedback gain matrix
     finalCostStruct = getFinalCost(Qf, xTraj, xDesTraj);
     [kArr, KArr, A, B] = backwardPass(dyn, finalCostStruct, Q, R, tRange, xTraj, uTraj, xDesTraj, uDesTraj);
-    uTrajSoln = forwardPass(kArr, KArr, dyn, dyn_fun, xTraj, uTraj, tRange, 0.2);
+    uTrajSoln = forwardPass(kArr, KArr, dyn, dyn_fun, xTraj, uTraj, tRange, 0.15);
     [tSoln, xTrajSoln] =  dyn_rollout_discrete(dyn_fun, x0, uTrajSoln, tRange);
     runningCostNew = getTotalRunningCost(Q,R, tRange, xTrajSoln, uTrajSoln, xDesTraj, uDesTraj);
     finalCostStructNew = getFinalCost(Qf, xTrajSoln, xDesTraj);
@@ -82,13 +82,9 @@ for i = 1: numIterations
 end
 cost = runningCost + finalCost;
 %%
-figure(1)
-subplot(1,2,1)
-plot(tRange, uTrajSoln)
-subplot(1,2,2)
-plot(tRange, xTrajSoln(1,1:end-1))
 
-figure(2)
+
+figure(1)
 plot(1:numIterations,cost)
 
 figure(3)
@@ -97,6 +93,11 @@ hax = axes
 switch typeProb
      case 1
          drawdoubleintegrator(hax, xTraj,tSoln,xDesTraj(1,1))
+         figure(2)
+         subplot(1,2,1)
+         plot(tRange, uTrajSoln)
+         subplot(1,2,2)
+         plot(tRange, xTrajSoln(1,1:end-1))
      case 2
          for k=1:length(tRange)
              m = 1;
