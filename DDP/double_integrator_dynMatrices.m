@@ -1,4 +1,4 @@
-function [dyn] = double_integrator_dynMatrices(t, x, u, tRange)
+function [dyn] = double_integrator_dynMatrices(t, x, u)
 %DOUBLE_INTEGRATOR_DYN Summary of this function goes here
 if nargin < 1
    t=0;

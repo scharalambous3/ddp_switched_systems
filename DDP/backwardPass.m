@@ -12,21 +12,21 @@ V(length(tRange)) = finalCost.value;
 V_x(:,length(tRange)) = finalCost.dx;
 V_xx(:,:,length(tRange)) = finalCost.dxx;
 
-kArr = zeros(size(uTraj,1), length(tRange));
-KArr = zeros(size(uTraj,1),size(xTraj,1), length(tRange));
+kArr = zeros(size(uTraj,1), length(tRange)-1);
+KArr = zeros(size(uTraj,1),size(xTraj,1), length(tRange)-1);
 Q_xx = zeros(size(xTraj,1),size(xTraj,1));
 Q_ux = zeros(size(uTraj,1),size(xTraj,1));
 Q_uu = zeros(size(uTraj,1),size(uTraj,1));
 
-A = zeros(size(xTraj,1), size(xTraj,1), length(tRange));
-B = zeros(size(xTraj,1), size(uTraj,1), length(tRange));
+A = zeros(size(xTraj,1), size(xTraj,1), length(tRange)-1);
+B = zeros(size(xTraj,1), size(uTraj,1), length(tRange)-1);
 
 
 for i = (length(tRange)-1):-1:1
     x = xTraj(:,i);
     u = uTraj(:,i);
-    cost = getCost(Q, R, tRange(i), tRange, x, u, xDesTraj, uDesTraj);
-    dynMatrices = dyn(tRange(i), x, u, tRange);
+    cost = getCost(Q, R, i, x, u, xDesTraj, uDesTraj);
+    dynMatrices = dyn(tRange(i), x, u);
     A(:,:,i) = dynMatrices.fx;
     B(:,:,i) = dynMatrices.fu;
     

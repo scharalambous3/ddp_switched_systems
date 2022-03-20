@@ -28,9 +28,9 @@ switch typeProb
         R = 1;
         Qf = 1000*eye(n);
      case 2
+        m = 0.01;
         M = 1;
-        m = M/100;
-        L = 1/4;
+        L = 0.25;
         g = -9.81;
         syms xVar xdot theta thetadot uVar;
         dxdt1 = xdot;
