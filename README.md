@@ -4,8 +4,7 @@ Implementation of DDP/iLQR for linear, nonlinear and switched systems
 
 
 Cart pendulum example
-![](https://github.com/scharalambous3/ddp_switched_systems/blob/main/doubleint.gif)
-
+<p style="text-align:center;"><img src="https://github.com/scharalambous3/ddp_switched_systems/blob/main/doubleint.gif" alt="Logo"></p>
 
 Double integrator example
 ![](https://github.com/scharalambous3/ddp_switched_systems/blob/main/cartpend.gif)
