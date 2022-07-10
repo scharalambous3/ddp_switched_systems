@@ -1,52 +1,25 @@
  function [uhat] = forwardPass(A, B, kArr, KArr, dyn_fun, xTraj, uTraj, tRange, alpha)
-%UNTITLED8 Summary of this function goes here
-%   Detailed explanation goes here
+%forwardPass Update input sequence using arrays of feedforward and feedback
+%terms from backward pass
 global dt
 uhat = zeros(size(uTraj,1),length(tRange));
 x0 = xTraj(:,1);
+xDim = length(x0);
 xhat=zeros(size(xTraj,1),length(tRange));
 xhat(:,1)=x0;
 
 deltax = zeros(size(xTraj,1),1);
 
-% A = zeros(size(xTraj,1), size(xTraj,1), length(tRange));
-% B = zeros(size(xTraj,1), size(uTraj,1), length(tRange));
-% 
-
-%deltax = [0,0]';
 for i = 1:length(tRange)-1
-%     
-%     x_i= xTraj(:,i);
-%     % feedforward modification term
-%     k_i = kArr(:,i);
-%     % feedback gain matrix
-%     K_i = KArr(:,:,i);
-%     % 
-%     deltax = (xhat(:,i)-x_i);
-%     ff_term = k_i;
-%     fb_term = K_i * deltax;
-%     deltau_star = ff_term + fb_term;
-%     uhat(:,i) = uTraj(:,i) + alpha * deltau_star;
-%     %[~, xRollout] = dyn_rollout(dyn_fun,xhat(:,i),uhat(:,i), [tRange(i),tRange(i+1)]);
-%     %xhat(:,i+1) = xRollout(:,end);
-%     %deltax = f_x * xhat(:,i) + f_u * uhat(:,i);
-% %     dynMatrices = dyn(tRange(i), xTraj(:,i), uTraj(:,i));
-% %     A(:,:,i) = dynMatrices.fx;
-% %     B(:,:,i) = dynMatrices.fu;
-%     f_x= eye(size(xTraj,1),size(xTraj,1)) + A(:,:,i)*dt;
-%     f_u= B(:,:,i)*dt;
-%     
-%     %xhat(:,i+1) = xhat(:,i) + f_x * deltax + f_u * deltau_star;
-%     % THis is what originally worked below
-%     xhat(:,i+1) = xhat(:,i) + dyn_fun(0, xhat(:,i), uhat(:,i)) * dt;
-%     
-%     
-%     
-    fx = eye(4,4) + A(:,:,i)  * dt;
+    %Obtain linear discrete dynamics about given state and input
+    %trajectories
+    fx = eye(xDim, xDim) + A(:,:,i)  * dt;
     fu= B(:,:,i) * dt;
     
+    %Compute input update using feedforward and feedback terms
     deltau = kArr(:,i) + KArr(:,:,i) * deltax;
-    deltax = fx * deltax + fu * deltau;  
+    deltax = fx * deltax + fu * deltau; 
+    %Compute updated input term
     uhat(:,i) = uTraj(:,i) + alpha * deltau;
 end
 end

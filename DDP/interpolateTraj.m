@@ -1,6 +1,6 @@
 function [x] = interpolateTraj(t,tRange, xTraj)
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
+%interpolateTraj Linear interpolation of given trajectory at a specific
+%time
 delta_t = t - tRange;
 signedVec = sign(delta_t);
 indexSecond = find(signedVec < 0, 1, 'first');

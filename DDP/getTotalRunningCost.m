@@ -1,6 +1,6 @@
 function [cost] = getTotalRunningCost(Q, R, horLength, xTraj, uTraj, xDesTraj, uDesTraj, P)
-%UNTITLED6 Summary of this function goes here
-%   Detailed explanation goes here
+%getTotalRunningCost Return total stage cost over given state and input
+%trajectories
 cost = 0;
 global dt
 if nargin < 9

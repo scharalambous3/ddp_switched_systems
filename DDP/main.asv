@@ -1,18 +1,18 @@
- clc
+clc
 clear
 close all
 
 global dt;
 global fxFunc fuFunc;
 
-%Timestep
+% Timestep
 dt = 0.01;
-%Vector of time horizon
+% Time trajectory
 tRange=[0:dt:10];
 
 % %Dynamics of double integrator
 % 1: double integrator, 2: cart_pendulum
-typeProb = 2;
+typeProb = 1;
 
 switch typeProb
      case 1
@@ -28,9 +28,9 @@ switch typeProb
         R = 1;
         Qf = 1000*eye(n);
      case 2
-        m = 0.01;
         M = 1;
-        L = 0.25;
+        m = M/100;
+        L = 1/4;
         g = -9.81;
         syms xVar xdot theta thetadot uVar;
         dxdt1 = xdot;
@@ -39,8 +39,6 @@ switch typeProb
         dxdt4 = (-uVar*cos(theta) - m*L*thetadot^2*sin(theta)*cos(theta)+(M+m)*g*sin(theta))/(L*(M+m*sin(theta)^2));
 
         
-        
-        %J = jacobian([dxdt1; dxdt2; dxdt3; dxdt4], [xVar, xdot, theta, thetadot, uVar]);
         fxFunc = matlabFunction(jacobian([dxdt1; dxdt2; dxdt3; dxdt4], [xVar, xdot, theta, thetadot]));
         fuFunc = matlabFunction(jacobian([dxdt1; dxdt2; dxdt3; dxdt4], [uVar]));
         dyn= @cart_pend_dynMatrices;
@@ -58,11 +56,13 @@ switch typeProb
         Qf = diag([5000,100,15000,100]);
 end
 
-
-numIterations=300;
-cost=[]
-runningCost=[]
-finalCost=[]
+%Maximum number of iterations
+numIterations=100;
+%Minimum number of iterations (must be >= 10)
+minIters=20;
+cost=[];
+runningCost=[];
+finalCost=[];
 uTraj = zeros(1,length(tRange));
 %MPC
 for i = 1: numIterations
@@ -76,13 +76,11 @@ for i = 1: numIterations
     
     % Rollout dynamics
     [t, xTraj] =  dyn_rollout_discrete(dyn_fun, x0, uTraj, tRange);
-    
-    
-    % IMPLEMENT LINE SEARCH STRATEGY
-    
+     
     %Get feed-forward and feedback gain matrix
     finalCostStruct = getFinalCost(Qf, xTraj, xDesTraj);
     [kArr, KArr, A, B] = backwardPass(dyn, finalCostStruct, Q, R, tRange, xTraj, uTraj, xDesTraj, uDesTraj);
+    % TODO: Implement line search strategy
     backtrackingLineSearchFlag =  true;
     learningRate=1;
     rho = 0.8;
@@ -116,31 +114,60 @@ for i = 1: numIterations
 %     yline(runningCost(end) + finalCost(end))
 %     hold off
     uTraj = uTrajSoln;
-    cost = runningCost + finalCost;
+    if i > minIters
+        cost = runningCost + finalCost;
+        if std(cost(end-10:end))/cost(end)<0.1
+            break
+        end
+    end
 end
 %%
 
 
 figure(1)
-plot(1:numIterations,cost)
+plot(1:i,cost)
+xlabel('Iteration')
+ylabel('Total cost')
+
+figure(2)
+subplot(1,2,1)
+plot(tRange, uTrajSoln)
+xlabel('Time')
+ylabel('Optimal input')
+figure(2)
+subplot(1,2,2)
+plot(tRange, xTrajSoln)
+switch typeProb
+     case 1
+         legend("x-Position","x-Velocity")
+    case 2
+        legend("x-Position","x-Velocity","Theta","Theta dot")
+end
+xlabel('Time')
+ylabel('Optimal state')
 
 figure(3)
 hax = axes
 
+gif('A.gif','DelayTime',1/50)
+desFrames=50;
+jumpStep = floor(length(tRange)/desFrames);
 switch typeProb
      case 1
-         %drawdoubleintegrator(hax, xTraj,tSoln,xDesTraj(1,1))
-         figure(2)
-         subplot(1,2,1)
-         plot(tRange, uTrajSoln)
-         subplot(1,2,2)
-         plot(tRange, xTrajSoln(1,1:end-1))
+         
+         for k=1:length(tRange)
+             if mod(k, desFrames) ~=0
+                 continue
+             end
+             drawdoubleintegrator(hax, xTraj(1,k),xDesTraj(1,k));
+         end
      case 2
          for k=1:length(tRange)
              m = 1;
              M = 5;
              L = 2;
-             %drawcartpend(hax,xTrajSoln(:,k),m,M,L);
+             drawcartpend(hax,xTrajSoln(:,k),m,M,L);
+             gif
          end
 
  end
