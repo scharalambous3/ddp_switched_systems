@@ -1,5 +1,8 @@
 function [kArr, KArr, A, B] = backwardPass(dyn, finalCost, Q, R, tRange, xTraj, uTraj, xDesTraj, uDesTraj)
-%backwardPass 
+%backwardPass Computes quadratic model of value function using backwards
+%recursion to output feedback and feedforward terms, and dynamic matrices
+%of linear dynamics along reference state and input trajectories
+
 %Preallocate value function array
 V_xx=zeros(size(xTraj,1), size(xTraj,1), length(tRange));
 V_x=zeros(size(xTraj,1),length(tRange));
@@ -69,6 +72,8 @@ for i = (length(tRange)-1):-1:1
         end
     end
     %Quadratic terms of quadratic approximation of cost to go
+    % Tensor is computationally expensive to compute. Uncomment if
+    % improved accuracy is needed.
     Q_xx= cost.dxx + f_x'*V_xx(:,:,i+1)*f_x;% + xx_tensorProd;
     Q_ux= cost.dux + f_u'*V_xx(:,:,i+1)*f_x;% + ux_tensorProd;
     Q_uu= cost.duu + f_u'*V_xx(:,:,i+1)*f_u;% + uu_tensorProd;
@@ -77,16 +82,10 @@ for i = (length(tRange)-1):-1:1
     k = - inv(Q_uu)* Q_u;
     %Feedback matrix
     K = - inv(Q_uu)* Q_ux;
-
-    %V_x(:,i) = Q_x - K'*Q_uu*k;  
-    %V_xx(:,:,i) = Q_xx - K'*Q_uu*K;
-    
+  
     V_x(:,i) = Q_x + K'*Q_uu*k +K'*Q_u+Q_ux'*k;  
     V_xx(:,:,i) = Q_xx + K'*Q_uu*K +K'*Q_ux+Q_ux'*K;
-    
-    %V_x(:,i) = Q_x - Q_u *     inv(Q_uu) * Q_ux;
-    %V_xx(:,:,i) = Q_xx - Q_xu * inv(Q_uu) * Q_ux;
-    
+       
     %Populate arrays
     kArr(:,i) = k;
     KArr(:,:,i) = K;

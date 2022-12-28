@@ -1,7 +1,9 @@
+%% Clear variables, cmd window and plots
 clc
 clear
 close all
 
+%% Parameters and problem type
 global dt;
 global fxFunc fuFunc;
 
@@ -10,10 +12,11 @@ dt = 0.01;
 % Time trajectory
 tRange=[0:dt:10];
 
-% %Dynamics of double integrator
-% 1: double integrator, 2: cart_pendulum
+%Specify problem type:
+% 1 for double integrator; 2 for cart pendulum
 typeProb = 2;
 
+%%
 switch typeProb
      case 1
         dyn=@double_integrator_dynMatrices;
@@ -162,7 +165,7 @@ switch typeProb
              drawdoubleintegrator(hax, xTraj(1,k),xDesTraj(1,k));
              if firstFrame
                 firstFrame=false;
-                pause
+                %pause
              end
          end
      case 2
@@ -176,7 +179,7 @@ switch typeProb
              drawcartpend(hax,xTrajSoln(:,k),m,M,L);
              if firstFrame
                 firstFrame=false;
-                pause
+                %pause
              end
              %gif
          end

@@ -1,6 +1,6 @@
 function [dyn] = cart_pend_dynMatrices(t, x, u)
 %cart_pend_dynMatrices Return quadratic approximation of cart pendulum
-%dynamics
+%dynamics about specific state and input
 global fxFunc fuFunc;
 % Time variable inputs are redundant as dynamics are time-invariant
 % dxdt(1,1) = x(2)

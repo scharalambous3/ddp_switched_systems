@@ -1,6 +1,6 @@
 function [dyn] = double_integrator_dynMatrices(t, x, u)
 %double_integrator_dynMatrices Return quadratic approximation of double
-%integrator dynamics
+%integrator dynamics  about specific state and input
 if nargin < 1
    t=0;
    x=[];
